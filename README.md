@@ -135,7 +135,7 @@ src/
 ### Compile
 From the `src` directory:
 ```bash
-javac calculator/Main.java calculator/frontend/*.java calculator/bridge/abstraction/*.java calculator/bridge/implementor/*.java
+javac calculator/Main.java calculator/frontend/*.java calculator/bridge/abstraction/*.java calculator/bridge/implementation/*.java
 ```
 
 ### Run
