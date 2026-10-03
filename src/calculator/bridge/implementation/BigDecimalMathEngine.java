@@ -1,0 +1,84 @@
+package calculator.bridge.implementation;
+
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
+
+public class BigDecimalMathEngine implements MathEngine {
+    private final MathContext mathContext;
+
+    public BigDecimalMathEngine() {
+        this.mathContext = new MathContext(34, RoundingMode.HALF_UP);
+    }
+
+    public BigDecimalMathEngine(int precision) {
+        this.mathContext = new MathContext(precision, RoundingMode.HALF_UP);
+    }
+
+    @Override
+    public String getName() {
+        return "Arbitrary-Precision BigDecimal Engine (" + mathContext.getPrecision() + " digits)";
+    }
+
+    private BigDecimal toBigDecimal(Number n) {
+        if (n instanceof BigDecimal) {
+            return (BigDecimal) n;
+        }
+        return new BigDecimal(n.toString());
+    }
+
+    @Override
+    public Number parseLiteral(String literal) {
+        return new BigDecimal(literal);
+    }
+
+    @Override
+    public Number add(Number a, Number b) {
+        return toBigDecimal(a).add(toBigDecimal(b), mathContext);
+    }
+
+    @Override
+    public Number subtract(Number a, Number b) {
+        return toBigDecimal(a).subtract(toBigDecimal(b), mathContext);
+    }
+
+    @Override
+    public Number multiply(Number a, Number b) {
+        return toBigDecimal(a).multiply(toBigDecimal(b), mathContext);
+    }
+
+    @Override
+    public Number divide(Number a, Number b) {
+        BigDecimal divisor = toBigDecimal(b);
+        if (divisor.compareTo(BigDecimal.ZERO) == 0) {
+            throw new ArithmeticException("Division by zero in BigDecimalMathEngine");
+        }
+        return toBigDecimal(a).divide(divisor, mathContext);
+    }
+
+    @Override
+    public Number power(Number a, Number b) {
+        BigDecimal base = toBigDecimal(a);
+        BigDecimal exponent = toBigDecimal(b);
+
+        // If exponent is an integer, use exact BigDecimal.pow()
+        try {
+            int intExp = exponent.intValueExact();
+            return base.pow(intExp, mathContext);
+        } catch (ArithmeticException e) {
+            // Fallback for fractional exponents
+            double result = Math.pow(base.doubleValue(), exponent.doubleValue());
+            return new BigDecimal(Double.toString(result), mathContext);
+        }
+    }
+
+    @Override
+    public Number negate(Number a) {
+        return toBigDecimal(a).negate();
+    }
+
+    @Override
+    public String format(Number value) {
+        return toBigDecimal(value).stripTrailingZeros().toPlainString();
+    }
+}
