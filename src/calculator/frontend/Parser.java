@@ -5,7 +5,7 @@ import java.util.List;
 public class Parser {
     private final List<Token> tokens;
     private int current = 0;
-    private String source;
+    private final String source;
 
     public Parser(String source, List<Token> tokens) {
         this.source = source;
