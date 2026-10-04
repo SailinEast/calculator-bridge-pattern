@@ -17,13 +17,13 @@ public class Lexer {
             char c = advance();
 
             switch (c) {
-                case '+': tokens.add(new Token(TokenType.PLUS, "+")); break;
-                case '-': tokens.add(new Token(TokenType.MINUS, "-")); break;
-                case '*': tokens.add(new Token(TokenType.STAR, "*")); break;
-                case '/': tokens.add(new Token(TokenType.SLASH, "/")); break;
-                case '^': tokens.add(new Token(TokenType.CARET, "^")); break;
-                case '(': tokens.add(new Token(TokenType.LPAREN, "(")); break;
-                case ')': tokens.add(new Token(TokenType.RPAREN, ")")); break;
+                case '+': tokens.add(new Token(TokenType.PLUS, "+", cursor)); break;
+                case '-': tokens.add(new Token(TokenType.MINUS, "-", cursor)); break;
+                case '*': tokens.add(new Token(TokenType.STAR, "*", cursor)); break;
+                case '/': tokens.add(new Token(TokenType.SLASH, "/", cursor)); break;
+                case '^': tokens.add(new Token(TokenType.CARET, "^", cursor)); break;
+                case '(': tokens.add(new Token(TokenType.LPAREN, "(", cursor)); break;
+                case ')': tokens.add(new Token(TokenType.RPAREN, ")", cursor)); break;
 
                 // Ignore whitespace
                 case ' ':
@@ -36,19 +36,21 @@ public class Lexer {
                     if (Character.isDigit(c)) {
                         readNumber(c);
                     } else {
-                        throw new IllegalArgumentException(
-                                "Unexpected character '" + c + "' at position " + (cursor - 1)
+                        throw new LexException(
+                                cursor,
+                                "Unexpected character '" + c + "'"
                         );
                     }
                     break;
             }
         }
 
-        tokens.add(new Token(TokenType.EOF, ""));
+        tokens.add(new Token(TokenType.EOF, "", cursor));
         return tokens;
     }
 
     private void readNumber(char firstDigit) {
+        int startPos = cursor;
         StringBuilder sb = new StringBuilder();
         sb.append(firstDigit);
 
@@ -61,7 +63,7 @@ public class Lexer {
             sb.append(advance());
         }
 
-        tokens.add(new Token(TokenType.NUMBER, sb.toString()));
+        tokens.add(new Token(TokenType.NUMBER, sb.toString(), startPos));
     }
 
     private char advance() {

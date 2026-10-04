@@ -13,7 +13,9 @@ public class Parser {
     public Expr parse() {
         Expr root = expression();
         if (!isAtEnd()) {
-            throw new IllegalArgumentException(
+            Token token = peek();
+            throw new ParseException(
+                    token.getPosition(),
                     "Unexpected token after expression: " + peek().getLexeme()
             );
         }
@@ -82,8 +84,10 @@ public class Parser {
             return expr;
         }
 
-        throw new IllegalArgumentException(
-                "Expected number or '(' but found: '" + peek().getLexeme() + "' at index " + current
+        Token token = peek();
+        throw new ParseException(
+                token.getPosition(),
+                "Expected number or '(' but found: '" + peek().getLexeme() + "'"
         );
     }
 
@@ -99,7 +103,9 @@ public class Parser {
 
     private Token consume(TokenType type, String message) {
         if (check(type)) return advance();
-        throw new IllegalArgumentException(message);
+
+        Token token = peek();
+        throw new ParseException(token.getPosition(), message);
     }
 
     private boolean check(TokenType type) {

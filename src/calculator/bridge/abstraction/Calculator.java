@@ -1,10 +1,7 @@
 package calculator.bridge.abstraction;
 
 import calculator.bridge.implementation.MathEngine;
-import calculator.frontend.Expr;
-import calculator.frontend.Lexer;
-import calculator.frontend.Parser;
-import calculator.frontend.TokenType;
+import calculator.frontend.*;
 
 import java.util.Objects;
 
@@ -24,15 +21,21 @@ public abstract class Calculator {
     }
 
     public String calculate(String expression) {
-        Lexer lexer = new Lexer(expression);
-        Parser parser = new Parser(lexer.tokenize());
-        Expr ast = parser.parse();
+        try {
+            Lexer lexer = new Lexer(expression);
+            Parser parser = new Parser(lexer.tokenize());
+            Expr ast = parser.parse();
 
-        beforeCalculation(expression);
-        Number result = evaluate(ast);
-        afterCalculation(result);
+            beforeCalculation(expression);
+            Number result = evaluate(ast);
+            afterCalculation(result);
 
-        return engine.format(result);
+            return engine.format(result);
+        } catch (SyntaxException e) {
+            return e.formatWithSource(expression);
+        } catch (ArithmeticException e) {
+            return "Math Error: " + e.getMessage();
+        }
     }
 
     protected Number evaluate(Expr node) {
