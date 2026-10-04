@@ -21,21 +21,15 @@ public abstract class Calculator {
     }
 
     public String calculate(String expression) {
-        try {
-            Lexer lexer = new Lexer(expression);
-            Parser parser = new Parser(lexer.tokenize());
-            Expr ast = parser.parse();
+        Lexer lexer = new Lexer(expression);
+        Parser parser = new Parser(lexer.tokenize());
+        Expr ast = parser.parse();
 
-            beforeCalculation(expression);
-            Number result = evaluate(ast);
-            afterCalculation(result);
+        beforeCalculation(expression);
+        Number result = evaluate(ast);
+        afterCalculation(result);
 
-            return engine.format(result);
-        } catch (SyntaxException e) {
-            return e.formatWithSource(expression);
-        } catch (ArithmeticException e) {
-            return "Math Error: " + e.getMessage();
-        }
+        return engine.format(result);
     }
 
     protected Number evaluate(Expr node) {
