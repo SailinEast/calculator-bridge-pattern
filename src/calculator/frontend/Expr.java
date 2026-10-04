@@ -1,6 +1,6 @@
 package calculator.frontend;
 
-public abstract class Expr {
+public abstract sealed class Expr permits Expr.Number, Expr.Unary, Expr.Binary {
     public String toTreeString() {
         return toTreeString("", "");
     }
@@ -11,7 +11,7 @@ public abstract class Expr {
 
     protected abstract String toTreeString(String prefix, String childPrefix);
 
-    public static class Number extends Expr {
+    public static final class Number extends Expr {
         private final String value;
 
         public Number(String value) {
@@ -33,7 +33,7 @@ public abstract class Expr {
         }
     }
 
-    public static class Binary extends Expr {
+    public static final class Binary extends Expr {
         private final Expr left;
         private final TokenType operator;
         private final Expr right;
@@ -63,7 +63,7 @@ public abstract class Expr {
         }
     }
 
-    public static class Unary extends Expr {
+    public static final class Unary extends Expr {
         private final TokenType operator;
         private final Expr right;
 
