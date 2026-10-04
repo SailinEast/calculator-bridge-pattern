@@ -1,8 +1,8 @@
 # AST Calculator — Bridge Design Pattern
 
-[![Java](https://img.shields.io/badge/Language-Java%2017%2B-orange.svg)](#)
-[![Design Pattern](https://img.shields.io/badge/Pattern-Bridge%20(GoF)-blue.svg)](#)
-[![Clean Code](https://img.shields.io/badge/Clean%20Code-Adherent-green.svg)](#)
+![Java](https://img.shields.io/badge/Language-Java%2021%2B-orange.svg)
+![Design Pattern](https://img.shields.io/badge/Pattern-Bridge%20(GoF)-blue.svg)
+![Clean Code](https://img.shields.io/badge/Clean%20Code-Adherent-green.svg)
 
 An arithmetic expression calculator with a genuine compiler front-end (**Lexer $\rightarrow$ Recursive Descent Parser $\rightarrow$ Abstract Syntax Tree**) whose evaluation engine is decoupled using the **Gang of Four (GoF) Bridge Pattern**.
 
@@ -12,14 +12,14 @@ An arithmetic expression calculator with a genuine compiler front-end (**Lexer $
 
 Most classic demonstrations of the Bridge pattern rely on textbook examples like *Shapes & Renderers* or *Remotes & Devices*. This project implements an original, domain-rich architecture:
 
-* **Compiler Front-End:** Tokenizes raw mathematical strings into a stream of tokens, enforces formal context-free grammar, and produces a type-safe Abstract Syntax Tree (`Expr`).
+* **Compiler Front-End:** Tokenizes raw mathematical strings into a stream of records, enforces formal context-free grammar, provides pinpoint character-level syntax error reporting, and produces a type-safe Abstract Syntax Tree (`Expr`).
 * **The Bridge Pattern:** Decouples **high-level AST evaluation and execution observation** (`Calculator` abstraction) from the **underlying numeric representation and arithmetic computation** (`MathEngine` implementor).
 
 ---
 
 ## 2. Technical Requirements Mapping
 
-This implementation maps directly to the technical requirements specified in the assignment:
+This implementation maps directly to the technical requirements specified for the Bridge pattern:
 
 | Bridge Component | Class / Interface | Responsibility |
 | :--- | :--- | :--- |
@@ -57,6 +57,15 @@ NUMBER     ::= [0-9]+ ( "." [0-9]+ )?
 | **4** | `*`, `/` | Multiplicative operations | Left-to-Right | `term()` |
 | **5 (Lowest)** | `+`, `-` | Additive operations | Left-to-Right | `expression()` |
 
+### Error Diagnostics
+When invalid syntax or unexpected tokens are encountered, the compiler front-end generates compiler-grade visual diagnostics with exact position indicators:
+
+```text
+  3 + * 4
+      ^
+Parse Error: Expected number or '(' but found: '*'
+```
+
 ---
 
 ## 4. Architecture & UML Diagram
@@ -80,22 +89,22 @@ StandardCalculator  TracedCalculator  DoubleMathEngine  BigDecimalMathEngine
 ## 5. Five Clean Code Principles (Justifications)
 
 1. **Clear Separation of Abstraction vs. Implementor (Information Hiding):**
-    * The abstraction layer (`Calculator`) only knows the high-level tree traversal algorithm. It never depends on `double` or `BigDecimal`.
-    * Low-level details (such as `MathContext` or IEEE-754 bit representations) remain strictly encapsulated inside the concrete implementors.
+   * The abstraction layer (`Calculator`) only knows the high-level tree traversal algorithm. It never depends on `double` or `BigDecimal`.
+   * Low-level details (such as `MathContext` or IEEE-754 bit representations) remain strictly encapsulated inside the concrete implementors.
 2. **Open/Closed Principle (OCP):**
-    * The architecture is open for extension but closed for modification. Adding a new `FractionMathEngine` (for exact rational math $1/3$) requires creating **one** class implementing `MathEngine`.
-    * Zero lines of code in `Lexer`, `Parser`, `Expr`, or `Calculator` need to be modified.
+   * The architecture is open for extension but closed for modification. Adding a new `FractionMathEngine` (for exact rational math $1/3$) requires creating **one** class implementing `MathEngine`.
+   * Zero lines of code in `Lexer`, `Parser`, `Expr`, or `Calculator` need to be modified.
 3. **Single Responsibility Principle (SRP):**
-    * `Lexer`: Scans raw characters into token lexemes.
-    * `Parser`: Enforces grammar rules and constructs the syntax tree.
-    * `Calculator`: Coordinates the evaluation pipeline and output presentation.
-    * `MathEngine`: Computes mathematical operations.
+   * `Lexer`: Scans raw characters into token records.
+   * `Parser`: Enforces grammar rules and constructs the syntax tree.
+   * `Calculator`: Coordinates the evaluation pipeline and output presentation.
+   * `MathEngine`: Computes mathematical operations.
 4. **Don't Repeat Yourself (DRY) via the Template Method Pattern:**
-    * Recursive tree evaluation logic is written **once** in `Calculator.evaluate(Expr)`.
-    * Refined abstractions (`StandardCalculator` and `TracedCalculator`) do not duplicate AST traversal; they only implement lightweight hook methods (`onLiteral`, `onBinary`, `onUnary`).
+   * Recursive tree evaluation logic is written **once** in `Calculator.evaluate(Expr)`.
+   * Refined abstractions (`StandardCalculator` and `TracedCalculator`) do not duplicate AST traversal; they only implement lightweight hook methods (`onLiteral`, `onBinary`, `onUnary`).
 5. **Preserving Domain Precision at Architectural Boundaries:**
-    * `Expr.Number` stores its numeric value as a raw `String literal` rather than immediately parsing it to a `double`.
-    * This prevents premature precision loss (e.g. `"0.1"` becoming `0.10000000000000000555...` due to binary float rounding) before the `BigDecimalMathEngine` has a chance to parse it.
+   * `Expr.Number` stores its numeric value as a raw `String literal` rather than immediately parsing it to a `double`.
+   * This prevents premature precision loss (e.g. `"0.1"` becoming `0.10000000000000000555...` due to binary float rounding) before the `BigDecimalMathEngine` has a chance to parse it.
 
 ---
 
@@ -108,14 +117,17 @@ src/
     │
     ├── frontend/                          # Compiler Front-End
     │   ├── TokenType.java                 # Enum representing token categories
-    │   ├── Token.java                     # Token container (type, lexeme)
+    │   ├── Token.java                     # Record holding token type, lexeme, and source cursor position
     │   ├── Lexer.java                     # Cursor-based lexical scanner
     │   ├── Parser.java                    # Recursive descent parser
-    │   └── Expr.java                      # AST Node hierarchy (Number, Binary, Unary)
+    │   ├── Expr.java                      # AST Node hierarchy (Number, Binary, Unary)
+    │   ├── SyntaxException.java           # Base exception formatting visual caret error markers
+    │   ├── LexException.java              # Scanner-level error (unexpected characters)
+    │   └── ParseException.java            # Grammar/token error (unexpected tokens)
     │
     └── bridge/                            # The Bridge Pattern
         ├── abstraction/                   # Abstraction Side
-        │   ├── Calculator.java            # Base abstraction (holds MathEngine)
+        │   ├── Calculator.java            # Base abstraction (orchestrates parsing & evaluation)
         │   ├── StandardCalculator.java    # Refined Abstraction 1 (silent calculation)
         │   └── TracedCalculator.java      # Refined Abstraction 2 (step-by-step trace)
         │
@@ -130,7 +142,7 @@ src/
 ## 7. Build and Run
 
 ### Prerequisites
-* Java JDK 17 or higher.
+* Java JDK 21 or higher.
 
 ### Compile
 From the `src` directory:
@@ -157,10 +169,7 @@ Evaluating: 0.1 + 0.2
 Using: IEEE-754 64-bit Double Engine
 Result -> 0.30000000000000004
 
->> [RUNTIME SWAP] Switching engine to BigDecimalMathEngine <<
-
-Using: Arbitrary-Precision BigDecimal Engine (40 digits)
-Result -> 0.3
+>> [RUNTIME SWAP] Switching engine to BigDecimalMathEngine  0.3
 
 --- DEMO 2: Refined Abstraction (Step-by-Step Trace) ---
 ==================================================
