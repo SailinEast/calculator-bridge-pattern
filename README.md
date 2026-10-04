@@ -40,9 +40,9 @@ The parser implements a **Deterministic Recursive Descent Parser** adhering to t
 ### EBNF Grammar Specification
 ```ebnf
 expression ::= term ( ( "+" | "-" ) term )*
-term       ::= power ( ( "*" | "/" ) power )*
-power      ::= unary ( "^" power )?              (* Right-associative exponentiation *)
-unary      ::= "-" unary | primary               (* Prefix negation *)
+term       ::= unary ( ( "*" | "/" ) unary )*
+unary      ::= "-" unary | power                 (* Prefix negation *)
+power      ::= primary ( "^" unary )?            (* Right-associative exponentiation *)
 primary    ::= NUMBER | "(" expression ")"
 NUMBER     ::= [0-9]+ ( "." [0-9]+ )?
 ```
@@ -52,8 +52,8 @@ NUMBER     ::= [0-9]+ ( "." [0-9]+ )?
 | Precedence Level |    Operators    | Description                             | Associativity | Grammar Method |
 |:----------------:|:---------------:|:----------------------------------------|:-------------:|:---------------|
 | **1 (Highest)**  | Literals, `( )` | Numbers and explicit groupings          |      N/A      | `primary()`    |
-|      **2**       |       `-`       | Unary negation (e.g. `- -5`)            | Right-to-Left | `unary()`      |
-|      **3**       |       `^`       | Exponentiation (e.g. `2 ^ 3 ^ 2 = 512`) | Right-to-Left | `power()`      |
+|      **2**       |       `^`       | Exponentiation (e.g. `2 ^ 3 ^ 2 = 512`) | Right-to-Left | `power()`      |
+|      **3**       |       `-`       | Unary negation (e.g. `-2 ^ 2 = -4`)     | Right-to-Left | `unary()`      |
 |      **4**       |    `*`, `/`     | Multiplicative operations               | Left-to-Right | `term()`       |
 |  **5 (Lowest)**  |    `+`, `-`     | Additive operations                     | Left-to-Right | `expression()` |
 
@@ -178,7 +178,10 @@ Evaluating: 0.1 + 0.2
 Using: IEEE-754 64-bit Double Engine
 Result -> 0.30000000000000004
 
->> [RUNTIME SWAP] Switching engine to BigDecimalMathEngine  0.3
+>> [RUNTIME SWAP] Switching engine to BigDecimalMathEngine <<
+
+Using: Arbitrary-Precision BigDecimal Engine (40 digits)
+Result -> 0.3
 
 --- DEMO 2: Refined Abstraction (Step-by-Step Trace) ---
 ==================================================
