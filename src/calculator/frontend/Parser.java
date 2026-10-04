@@ -38,33 +38,20 @@ public class Parser {
         return expr;
     }
 
-    // term -> power ( ( "*" | "/" ) power )*
+    // term -> unary ( ( "*" | "/" ) unary )*
     private Expr term() {
-        Expr expr = power();
+        Expr expr = unary();
 
         while (match(TokenType.STAR, TokenType.SLASH)) {
             TokenType op = previous().type();
-            Expr right = power();
+            Expr right = unary();
             expr = new Expr.Binary(expr, op, right);
         }
 
         return expr;
     }
 
-    // power -> unary ( "^" power )?
-    private Expr power() {
-        Expr expr = unary();
-
-        if (match(TokenType.CARET)) {
-            TokenType op = previous().type();
-            Expr right = power();
-            expr = new Expr.Binary(expr, op, right);
-        }
-
-        return expr;
-    }
-
-    // unary -> "-" unary | primary
+    // unary -> "-" unary | power
     private Expr unary() {
         if (match(TokenType.MINUS)) {
             TokenType op = previous().type();
@@ -72,7 +59,20 @@ public class Parser {
             return new Expr.Unary(op, right);
         }
 
-        return primary();
+        return power();
+    }
+
+    // power -> primary ( "^" unary )?
+    private Expr power() {
+        Expr expr = primary();
+
+        if (match(TokenType.CARET)) {
+            TokenType op = previous().type();
+            Expr right = unary();
+            expr = new Expr.Binary(expr, op, right);
+        }
+
+        return expr;
     }
 
     // primary -> NUMBER | "(" expression ")"
