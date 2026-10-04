@@ -21,6 +21,7 @@ public abstract class Calculator {
     }
 
     public String calculate(String expression) {
+        Objects.requireNonNull(expression, "Expression must not be null");
         if (expression.isBlank()) { return ""; }
 
         Lexer lexer = new Lexer(expression);
