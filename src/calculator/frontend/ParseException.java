@@ -1,7 +1,12 @@
 package calculator.frontend;
 
-public class ParseException extends RuntimeException {
-    public ParseException(String message) {
-        super(message);
+public class ParseException extends SyntaxException {
+    public ParseException(int position, String message) {
+        super(position, message);
+    }
+
+    @Override
+    String getError() {
+        return "Parse Error";
     }
 }
