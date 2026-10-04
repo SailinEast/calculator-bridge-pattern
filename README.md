@@ -49,13 +49,13 @@ NUMBER     ::= [0-9]+ ( "." [0-9]+ )?
 
 ### Operator Precedence & Associativity
 
-| Precedence Level | Operators | Description | Associativity | Grammar Method |
-| :---: | :---: | :--- | :---: | :--- |
-| **1 (Highest)** | Literals, `( )` | Numbers and explicit groupings | N/A | `primary()` |
-| **2** | `-` | Unary negation (e.g. `- -5`) | Right-to-Left | `unary()` |
-| **3** | `^` | Exponentiation (e.g. `2 ^ 3 ^ 2 = 512`) | Right-to-Left | `power()` |
-| **4** | `*`, `/` | Multiplicative operations | Left-to-Right | `term()` |
-| **5 (Lowest)** | `+`, `-` | Additive operations | Left-to-Right | `expression()` |
+| Precedence Level |    Operators    | Description                             | Associativity | Grammar Method |
+|:----------------:|:---------------:|:----------------------------------------|:-------------:|:---------------|
+| **1 (Highest)**  | Literals, `( )` | Numbers and explicit groupings          |      N/A      | `primary()`    |
+|      **2**       |       `-`       | Unary negation (e.g. `- -5`)            | Right-to-Left | `unary()`      |
+|      **3**       |       `^`       | Exponentiation (e.g. `2 ^ 3 ^ 2 = 512`) | Right-to-Left | `power()`      |
+|      **4**       |    `*`, `/`     | Multiplicative operations               | Left-to-Right | `term()`       |
+|  **5 (Lowest)**  |    `+`, `-`     | Additive operations                     | Left-to-Right | `expression()` |
 
 ### Error Diagnostics
 When invalid syntax or unexpected tokens are encountered, the compiler front-end generates compiler-grade visual diagnostics with exact position indicators:
