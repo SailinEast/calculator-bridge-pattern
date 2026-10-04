@@ -37,6 +37,7 @@ public class Lexer {
                         readNumber(c);
                     } else {
                         throw new LexException(
+                                source,
                                 cursor,
                                 "Unexpected character '" + c + "'"
                         );

@@ -3,22 +3,28 @@ package calculator.frontend;
 public abstract class SyntaxException extends RuntimeException {
     private final int position;
 
-    public SyntaxException(int position, String message) {
-        super(message);
+    public SyntaxException(String source, int position, String errorType, String message) {
+        super(buildMessage(source, position, errorType, message));
         this.position = position;
+    }
+
+    // Do not record stack frames
+    @Override
+    public synchronized Throwable fillInStackTrace() {
+        return this;
     }
 
     public int getPosition() { return position; }
 
-    abstract String getError();
+    private static String buildMessage(String source, int position, String errorType, String message) {
+        int pos = Math.clamp(position, 0, source == null ? 0 : source.length());
 
-    public String formatWithSource(String expression) {
-        int pos = Math.clamp(position, 0, expression.length());
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("\n  ").append(expression).append("\n");
-        sb.append("  ").repeat(" ", pos - 1).append("^\n");
-        sb.append(getError()).append(": ").append(getMessage());
-        return sb.toString();
+        return String.format(
+                "\n\n  %s\n  %s^\n%s: %s\n",
+                source,
+                " ".repeat(pos - 1),
+                errorType,
+                message
+        );
     }
 }

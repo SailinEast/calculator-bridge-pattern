@@ -5,8 +5,10 @@ import java.util.List;
 public class Parser {
     private final List<Token> tokens;
     private int current = 0;
+    private String source;
 
-    public Parser(List<Token> tokens) {
+    public Parser(String source, List<Token> tokens) {
+        this.source = source;
         this.tokens = tokens;
     }
 
@@ -15,8 +17,9 @@ public class Parser {
         if (!isAtEnd()) {
             Token token = peek();
             throw new ParseException(
+                    source,
                     token.position(),
-                    "Unexpected token after expression: " + peek().lexeme()
+                    "Unexpected token after expression: '" + token.lexeme() + "'"
             );
         }
         return root;
@@ -86,8 +89,9 @@ public class Parser {
 
         Token token = peek();
         throw new ParseException(
+                source,
                 token.position(),
-                "Expected number or '(' but found: '" + peek().lexeme() + "'"
+                "Expected number or '(' but found: '" + token.lexeme() + "'"
         );
     }
 
@@ -105,7 +109,7 @@ public class Parser {
         if (check(type)) return advance();
 
         Token token = peek();
-        throw new ParseException(token.position(), message);
+        throw new ParseException(source, token.position(), message);
     }
 
     private boolean check(TokenType type) {
