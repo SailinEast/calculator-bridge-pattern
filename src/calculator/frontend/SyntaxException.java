@@ -22,7 +22,7 @@ public abstract class SyntaxException extends RuntimeException {
         return String.format(
                 "\n\n  %s\n  %s^\n%s: %s\n",
                 source,
-                " ".repeat(pos - 1),
+                " ".repeat(Math.max(0, pos - 1)),
                 errorType,
                 message
         );
