@@ -15,8 +15,8 @@ public class Parser {
         if (!isAtEnd()) {
             Token token = peek();
             throw new ParseException(
-                    token.getPosition(),
-                    "Unexpected token after expression: " + peek().getLexeme()
+                    token.position(),
+                    "Unexpected token after expression: " + peek().lexeme()
             );
         }
         return root;
@@ -27,7 +27,7 @@ public class Parser {
         Expr expr = term();
 
         while (match(TokenType.PLUS, TokenType.MINUS)) {
-            TokenType op = previous().getType();
+            TokenType op = previous().type();
             Expr right = term();
             expr = new Expr.Binary(expr, op, right);
         }
@@ -40,7 +40,7 @@ public class Parser {
         Expr expr = power();
 
         while (match(TokenType.STAR, TokenType.SLASH)) {
-            TokenType op = previous().getType();
+            TokenType op = previous().type();
             Expr right = power();
             expr = new Expr.Binary(expr, op, right);
         }
@@ -53,7 +53,7 @@ public class Parser {
         Expr expr = unary();
 
         if (match(TokenType.CARET)) {
-            TokenType op = previous().getType();
+            TokenType op = previous().type();
             Expr right = power();
             expr = new Expr.Binary(expr, op, right);
         }
@@ -64,7 +64,7 @@ public class Parser {
     // unary -> "-" unary | primary
     private Expr unary() {
         if (match(TokenType.MINUS)) {
-            TokenType op = previous().getType();
+            TokenType op = previous().type();
             Expr right = unary();
             return new Expr.Unary(op, right);
         }
@@ -75,7 +75,7 @@ public class Parser {
     // primary -> NUMBER | "(" expression ")"
     private Expr primary() {
         if (match(TokenType.NUMBER)) {
-            return new Expr.Number(previous().getLexeme());
+            return new Expr.Number(previous().lexeme());
         }
 
         if (match(TokenType.LPAREN)) {
@@ -86,8 +86,8 @@ public class Parser {
 
         Token token = peek();
         throw new ParseException(
-                token.getPosition(),
-                "Expected number or '(' but found: '" + peek().getLexeme() + "'"
+                token.position(),
+                "Expected number or '(' but found: '" + peek().lexeme() + "'"
         );
     }
 
@@ -105,12 +105,12 @@ public class Parser {
         if (check(type)) return advance();
 
         Token token = peek();
-        throw new ParseException(token.getPosition(), message);
+        throw new ParseException(token.position(), message);
     }
 
     private boolean check(TokenType type) {
         if (isAtEnd()) return false;
-        return peek().getType() == type;
+        return peek().type() == type;
     }
 
     private Token advance() {
@@ -119,7 +119,7 @@ public class Parser {
     }
 
     private boolean isAtEnd() {
-        return peek().getType() == TokenType.EOF;
+        return peek().type() == TokenType.EOF;
     }
 
     private Token peek() {
