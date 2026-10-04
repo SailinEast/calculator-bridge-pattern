@@ -50,11 +50,9 @@ public abstract sealed class Expr permits Expr.Number, Expr.Unary, Expr.Binary {
 
         @Override
         protected String toTreeString(String prefix, String childPrefix) {
-            StringBuilder sb = new StringBuilder();
-            sb.append(prefix).append("BinaryOp(").append(operator).append(")\n");
-            sb.append(left.toTreeString(childPrefix + "├── ", childPrefix + "│   "));
-            sb.append(right.toTreeString(childPrefix + "└── ", childPrefix + "    "));
-            return sb.toString();
+            return prefix + "BinaryOp(" + operator + ")\n" +
+                    left.toTreeString(childPrefix + "├── ", childPrefix + "│   ") +
+                    right.toTreeString(childPrefix + "└── ", childPrefix + "    ");
         }
 
         @Override
@@ -77,10 +75,8 @@ public abstract sealed class Expr permits Expr.Number, Expr.Unary, Expr.Binary {
 
         @Override
         protected String toTreeString(String prefix, String childPrefix) {
-            StringBuilder sb = new StringBuilder();
-            sb.append(prefix).append("UnaryOp(").append(operator).append(")\n");
-            sb.append(right.toTreeString(childPrefix + "└── ", childPrefix + "    "));
-            return sb.toString();
+            return prefix + "UnaryOp(" + operator + ")\n" +
+                    right.toTreeString(childPrefix + "└── ", childPrefix + "    ");
         }
 
         @Override
