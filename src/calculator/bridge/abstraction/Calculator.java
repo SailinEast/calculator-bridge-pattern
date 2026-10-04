@@ -21,6 +21,8 @@ public abstract class Calculator {
     }
 
     public String calculate(String expression) {
+        if (expression.isBlank()) { return ""; }
+
         Lexer lexer = new Lexer(expression);
         Parser parser = new Parser(expression, lexer.tokenize());
         Expr ast = parser.parse();
